@@ -2877,6 +2877,10 @@ ngx_http_upstream_check_status_html_format(ngx_buf_t *b,
             "    <th>Fall counts</th>\n"
             "    <th>Check type</th>\n"
             "    <th>Check port</th>\n"
+#if (NGX_HTTP_UPSTREAM_FAIR)
+            "    <th>Busyness</th>\n"
+            "    <th>Access count</th>\n"
+#endif
             "  </tr>\n",
             count, ngx_http_upstream_check_shm_generation);
 
@@ -2905,6 +2909,10 @@ ngx_http_upstream_check_status_html_format(ngx_buf_t *b,
                 "    <td>%ui</td>\n"
                 "    <td>%V</td>\n"
                 "    <td>%ui</td>\n"
+#if (NGX_HTTP_UPSTREAM_FAIR)
+                "    <td>%ui</td>\n"
+                "    <td>%ui</td>\n"
+#endif
                 "  </tr>\n",
                 peer[i].shm->down ? " bgcolor=\"#FF0000\"" : "",
                 i,
@@ -2914,7 +2922,13 @@ ngx_http_upstream_check_status_html_format(ngx_buf_t *b,
                 peer[i].shm->rise_count,
                 peer[i].shm->fall_count,
                 &peer[i].conf->check_type_conf->name,
+#if (NGX_HTTP_UPSTREAM_FAIR)
+                peer[i].conf->port,
+                peer[i].shm->busyness,
+                peer[i].shm->access_count);
+#else
                 peer[i].conf->port);
+#endif
     }
 
     b->last = ngx_snprintf(b->last, b->end - b->last,
